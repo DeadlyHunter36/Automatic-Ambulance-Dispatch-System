@@ -3,128 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LifeLink - Advanced Dispatch Engine</title>
-  
+  <title>LifeLink AADS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
-    body { font-family: 'Inter', sans-serif; margin: 0; }
+    body { font-family: 'Inter', sans-serif; }
     #root { height: 100vh; display: flex; flex-direction: column; }
-    #map { width: 100%; height: 100%; z-index: 1; border-radius: 0.5rem; }
-    .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); }
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    /* Ensure Leaflet container has height */
+    .leaflet-container {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Subtle Arrival Animation for Map Markers */
+    @keyframes marker-arrival-pulse {
+      0% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(239, 68, 68, 0)); }
+      50% { transform: scale(1.2); filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.6)); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(239, 68, 68, 0)); }
+    }
+    .marker-arrival-pulse {
+      animation: marker-arrival-pulse 1.5s infinite ease-in-out;
+    }
   </style>
-
-  <script type="importmap">
-  {
-    "imports": {
-      "react": "https://esm.sh/react@19.2.3",
-      "react-dom/client": "https://esm.sh/react-dom@19.2.3/client"
-    }
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
   }
-  </script>
+}
+</script>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 text-gray-900">
   <div id="root"></div>
-
-  <script type="text/babel" data-type="module">
-    import React, { useEffect, useRef, useState } from 'react';
-    import { createRoot } from 'react-dom/client';
-
-    function App() {
-      const mapRef = useRef(null);
-      const [view, setView] = useState('patient');
-
-      useEffect(() => {
-        if (!mapRef.current) {
-          // Initialize map centered on Bengaluru as seen in your screenshot
-          const map = L.map('map').setView([12.9279, 77.6271], 13);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-          
-          // Add Ambulance Markers (Blue/Yellow icons from your screenshot)
-          const ambulanceCoords = [
-            [12.9352, 77.6245], // HSR Layout area
-            [12.9165, 77.6013], // JP Nagar area
-            [12.9226, 77.6174]  // BTM Layout area
-          ];
-
-          ambulanceCoords.forEach(coord => {
-            L.circleMarker(coord, {
-              radius: 10,
-              fillColor: "#3b82f6",
-              color: "#ffffff",
-              weight: 2,
-              opacity: 1,
-              fillOpacity: 0.8
-            }).addTo(map).bindPopup("Ambulance Active");
-          });
-
-          mapRef.current = map;
-        }
-      }, []);
-
-      return (
-        <div className="flex flex-col h-screen overflow-hidden">
-          {/* Restored Header with Admin/Driver Tabs */}
-          <header className="glass-nav border-b p-4 flex justify-between items-center z-50 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="bg-red-600 p-2 rounded-lg text-white">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              </div>
-              <div>
-                <h1 className="text-lg font-bold">LifeLink</h1>
-                <p className="text-[10px] uppercase font-bold text-gray-400 tracking-tighter">Advanced Dispatch Engine</p>
-              </div>
-            </div>
-
-            <div className="flex bg-gray-100 p-1 rounded-full border border-gray-200">
-              {['patient', 'admin', 'driver'].map((role) => (
-                <button
-                  key={role}
-                  onClick={() => setView(role)}
-                  className={`px-4 py-1 rounded-full text-xs font-bold transition-all ${view === role ? 'bg-white text-red-600 shadow-sm' : 'text-gray-400'}`}
-                >
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                </button>
-              ))}
-            </div>
-          </header>
-
-          <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
-            {/* Sidebar with Request Button */}
-            <div className="w-full md:w-80 bg-white border-r p-6 overflow-y-auto shadow-inner">
-              <h2 className="text-xl font-bold text-gray-800 mb-2">Emergency Assistance</h2>
-              <p className="text-sm text-gray-500 mb-6 leading-relaxed">Request an immediate ambulance by selecting your location on the map.</p>
-              
-              <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg shadow-red-100 transition-transform active:scale-95">
-                <span className="text-xl">📍</span> REQUEST AMBULANCE
-              </button>
-
-              <div className="mt-10 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-[10px] font-bold uppercase text-gray-400">System Online</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Map Container */}
-            <div className="flex-1 p-4 bg-gray-50">
-              <div className="h-full relative shadow-lg rounded-xl overflow-hidden border border-gray-200">
-                <div id="map"></div>
-              </div>
-            </div>
-          </main>
-        </div>
-      );
-    }
-
-    const root = createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
 </body>
 </html>
