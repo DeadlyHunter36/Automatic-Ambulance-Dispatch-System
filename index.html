@@ -51,13 +51,51 @@
 
   // 2. Define what your app looks like
   function App() {
-    return (
-      <div className="p-10">
-        <h1 className="text-3xl font-bold text-blue-600">LifeLink is Running!</h1>
-        <p className="mt-4">If you see this, React is successfully working.</p>
+  const [requestSent, setRequestSent] = React.useState(false);
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-800">LifeLink</h1>
+        <div className="space-x-2">
+          <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-bold">Patient</span>
+        </div>
       </div>
-    );
-  }
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Side: Controls */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h2 className="text-xl font-bold mb-2">Emergency Help</h2>
+          <p className="text-gray-500 mb-6">Request an immediate ambulance to your current location.</p>
+          
+          <button 
+            onClick={() => setRequestSent(true)}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all"
+          >
+            📍 {requestSent ? "REQUEST SENT..." : "REQUEST AMBULANCE"}
+          </button>
+
+          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-bold text-sm mb-2">Safety Instructions:</h3>
+            <ul className="text-sm text-gray-600 list-disc ml-5 space-y-1">
+              <li>Stay where you are.</li>
+              <li>Keep your phone line clear.</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Right Side: Map */}
+        <div className="bg-gray-200 rounded-2xl h-[400px] flex items-center justify-center border-2 border-dashed border-gray-300">
+            <div className="text-center">
+                <p className="font-bold text-gray-500">Map View Placeholder</p>
+                <p className="text-xs text-gray-400">Google Maps API will load here</p>
+            </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   // 3. Put the app inside the "root" div
   const container = document.getElementById('root');
