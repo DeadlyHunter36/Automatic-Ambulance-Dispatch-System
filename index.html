@@ -43,6 +43,26 @@
   }
 }
 </script>
+  <script type="module">
+  // 1. Import the tools from the map you just showed me
+  import React from 'react';
+  import { createRoot } from 'react-dom/client';
+
+  // 2. Define what your app looks like
+  function App() {
+    return (
+      <div className="p-10">
+        <h1 className="text-3xl font-bold text-blue-600">LifeLink is Running!</h1>
+        <p className="mt-4">If you see this, React is successfully working.</p>
+      </div>
+    );
+  }
+
+  // 3. Put the app inside the "root" div
+  const container = document.getElementById('root');
+  const root = createRoot(container);
+  root.render(<App />);
+</script>
 </head>
 <body class="bg-gray-50 text-gray-900">
   <h1 style="color: red; z-index: 9999; position: relative;">If you can see this, the HTML is loading!</h1>
