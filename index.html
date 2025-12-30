@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LifeLink AADS</title>
+  
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
     body { font-family: 'Inter', sans-serif; }
     #root { height: 100vh; display: flex; flex-direction: column; }
@@ -18,93 +20,91 @@
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
     }
-    /* Ensure Leaflet container has height */
-    .leaflet-container {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Subtle Arrival Animation for Map Markers */
-    @keyframes marker-arrival-pulse {
-      0% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(239, 68, 68, 0)); }
-      50% { transform: scale(1.2); filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.6)); }
-      100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(239, 68, 68, 0)); }
-    }
-    .marker-arrival-pulse {
-      animation: marker-arrival-pulse 1.5s infinite ease-in-out;
-    }
+    #map { width: 100%; height: 100%; border-radius: 1rem; }
   </style>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@19.2.3",
+      "react-dom/client": "https://esm.sh/react-dom@19.2.3/client"
+    }
   }
-}
-</script>
-  <script type="text/babel" data-type="module">
-  // 1. Import the tools from the map you just showed me
-  import React from 'react';
-  import { createRoot } from 'react-dom/client';
-
-  // 2. Define what your app looks like
-  function App() {
-  const [requestSent, setRequestSent] = React.useState(false);
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">LifeLink</h1>
-        <div className="space-x-2">
-          <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-bold">Patient</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Left Side: Controls */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <h2 className="text-xl font-bold mb-2">Emergency Help</h2>
-          <p className="text-gray-500 mb-6">Request an immediate ambulance to your current location.</p>
-          
-          <button 
-            onClick={() => setRequestSent(true)}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all"
-          >
-            📍 {requestSent ? "REQUEST SENT..." : "REQUEST AMBULANCE"}
-          </button>
-
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-bold text-sm mb-2">Safety Instructions:</h3>
-            <ul className="text-sm text-gray-600 list-disc ml-5 space-y-1">
-              <li>Stay where you are.</li>
-              <li>Keep your phone line clear.</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Right Side: Map */}
-        <div className="bg-gray-200 rounded-2xl h-[400px] flex items-center justify-center border-2 border-dashed border-gray-300">
-            <div className="text-center">
-                <p className="font-bold text-gray-500">Map View Placeholder</p>
-                <p className="text-xs text-gray-400">Google Maps API will load here</p>
-            </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-  // 3. Put the app inside the "root" div
-  const container = document.getElementById('root');
-  const root = createRoot(container);
-  root.render(<App />);
-</script>
+  </script>
 </head>
 <body class="bg-gray-50 text-gray-900">
-  <h1 style="color: red; z-index: 9999; position: relative;">If you can see this, the HTML is loading!</h1>
   <div id="root"></div>
+
+  <script type="text/babel" data-type="module">
+    import React, { useEffect, useRef, useState } from 'react';
+    import { createRoot } from 'react-dom/client';
+
+    function App() {
+      const mapRef = useRef(null);
+      const [status, setStatus] = useState("Ready");
+
+      // Initialize Leaflet Map
+      useEffect(() => {
+        if (!mapRef.current) {
+          const map = L.map('map').setView([12.9716, 77.5946], 13); // Default to Bengaluru
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+          mapRef.current = map;
+        }
+      }, []);
+
+      const handleRequest = () => {
+        setStatus("Searching for Ambulance...");
+        setTimeout(() => setStatus("Ambulance Dispatched!"), 2000);
+      };
+
+      return (
+        <div className="flex flex-col h-screen">
+          {/* Navbar */}
+          <nav className="p-4 glass-effect border-b flex justify-between items-center sticky top-0 z-[1000]">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold">L</div>
+              <span className="font-bold text-xl tracking-tight">LifeLink</span>
+            </div>
+            <div className="flex gap-2">
+              <button className="px-4 py-1 rounded-full bg-red-100 text-red-600 text-sm font-bold">Patient</button>
+            </div>
+          </nav>
+
+          {/* Main Content */}
+          <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 p-4 gap-4 overflow-hidden">
+            {/* Sidebar Controls */}
+            <div className="lg:col-span-1 space-y-4">
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h2 className="text-2xl font-bold mb-2">Emergency Help</h2>
+                <p className="text-gray-500 mb-6">Need help? Request an ambulance to your exact location with one tap.</p>
+                
+                <button 
+                  onClick={handleRequest}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2"
+                >
+                  <span className="text-xl">🚑</span> {status}
+                </button>
+
+                <div className="mt-6 space-y-3">
+                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-100 flex gap-3">
+                        <span className="text-blue-500">ℹ️</span>
+                        <p className="text-sm text-blue-700 font-medium">Your location is being shared with nearby responders.</p>
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Map Container */}
+            <div className="lg:col-span-2 relative bg-gray-200 rounded-2xl overflow-hidden shadow-inner border border-gray-300">
+              <div id="map"></div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
 </body>
 </html>
