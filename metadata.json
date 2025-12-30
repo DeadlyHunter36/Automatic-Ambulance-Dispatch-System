@@ -1,0 +1,7 @@
+{
+  "name": "LifeLink: Automated Ambulance Dispatch System",
+  "description": "A comprehensive real-time ambulance dispatch system featuring interfaces for patients, drivers, and admin hospitals using Google Maps and simulated real-time socket communication.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
