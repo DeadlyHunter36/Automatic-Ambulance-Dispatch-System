@@ -34,6 +34,7 @@
       animation: marker-arrival-pulse 1.5s infinite ease-in-out;
     }
   </style>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script type="importmap">
 {
   "imports": {
@@ -43,7 +44,7 @@
   }
 }
 </script>
-  <script type="module">
+  <script type="text/babel" data-type="module">
   // 1. Import the tools from the map you just showed me
   import React from 'react';
   import { createRoot } from 'react-dom/client';
